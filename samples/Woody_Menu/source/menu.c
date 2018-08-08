@@ -5,13 +5,13 @@
 #include <orbis2d.h>
 #include <orbisXbmFont.h>
 #include "menu.h"
+#include "settings.h"
 
 
-// General background
-extern Orbis2dTexture *bckgr;
-Orbis2dTexture *bckgr=NULL;
+//active menu
+menu=1;
 
-// Terminal windows Images (for submenu or text)
+// Terminal windows Images (for SubMenuSetting or text)
 extern Orbis2dTexture *term;
 extern Orbis2dTexture *termtop;
 extern Orbis2dTexture *termbot;
@@ -20,183 +20,218 @@ Orbis2dTexture *termtop=NULL;
 Orbis2dTexture *termbot=NULL;
 
 // Top menu icons Small
-extern Orbis2dTexture *icon1s;
-extern Orbis2dTexture *icon2s;
-extern Orbis2dTexture *icon3s;
-extern Orbis2dTexture *icon4s;
-extern Orbis2dTexture *icon5s;
-Orbis2dTexture *icon1s=NULL;
-Orbis2dTexture *icon2s=NULL;
-Orbis2dTexture *icon3s=NULL;
-Orbis2dTexture *icon4s=NULL;
-Orbis2dTexture *icon5s=NULL;
+extern Orbis2dTexture *iconGamesSmall;
+extern Orbis2dTexture *icon2Small;
+extern Orbis2dTexture *icon3Small;
+extern Orbis2dTexture *icon4Small;
+extern Orbis2dTexture *iconSettingsSmall;
+Orbis2dTexture *iconGamesSmall=NULL;
+Orbis2dTexture *icon2Small=NULL;
+Orbis2dTexture *icon3Small=NULL;
+Orbis2dTexture *icon4Small=NULL;
+Orbis2dTexture *iconSettingsSmall=NULL;
 
 // Top menu icons Big
-extern Orbis2dTexture *icon1;
+extern Orbis2dTexture *iconGames;
 extern Orbis2dTexture *icon2;
 extern Orbis2dTexture *icon3;
 extern Orbis2dTexture *icon4;
-extern Orbis2dTexture *icon5;
-Orbis2dTexture *icon1=NULL;
+extern Orbis2dTexture *iconSettings;
+Orbis2dTexture *iconGames=NULL;
 Orbis2dTexture *icon2=NULL;
 Orbis2dTexture *icon3=NULL;
 Orbis2dTexture *icon4=NULL;
-Orbis2dTexture *icon5=NULL;
+Orbis2dTexture *iconSettings=NULL;
 
 // Define icons size status
-int icon1big=0;
+int iconGamesBig=0;
 int icon2big=0;
 int icon3big=1;
 int icon4big=0;
-int icon5big=0;
+int iconSettingsBig=0;
 
 // Top Menu Tittles
-#define tittle_1 "----G A M E S----"
-#define tittle_2 "----F I L E S----"
-#define tittle_3 "----T O O L S----"
-#define tittle_4 "--N E T W O R K--"
-#define tittle_5 "-S E T T I N G S-"
 char *tittle=tittle_3;
-int32_t tittle_y=210;
-char tmp_ln[256];
+tittle_y=210;
 
 
-//Top Menu icons
-int iconLevel=ICON_3;
-x1=0;
-int y1=20;
-int step1=140;
+//Main Menu icons
+char mainMenuLevel=ICON_3;
+main_menu_x=0;
+int main_menu_y=20;
+int main_menu_step_x=140;
 
 
-// terminal
-int termx;
-int termy = 200;
-int iterm;
-int tx;
+//terminal
+terminal=1;
+slidespeed=8;
+termy = 200;
+temp_flipArg=0;
 
+tabx=200;
+taby=200;
+tabw=880;
+tabh=0;
+color=0xFF000000;
 
-int tabx=200;
-int taby=200;
-int tabw=880;
-int tabh=400;
-int rect=1;
-int slidetab=1;
-uint32_t color=0xFF000000;
-uint32_t c1=0xFF000000;
-uint32_t c2=0xFF000000;
+//submenu text / higlight
+int setsub()
+{
+	sub_text_y=250;
+	sub_text_step=25;
+	sub_hig_x=340;
+	sub_hig_w=600;
+	sub_hig_y=250;
+	sub_hig_h=18;
+	sub_hig_step=25;
+	sub_hig_color=0x800080ff;
+}
 
-//Sub_Menu Setting menu conf temp
-#define slide_on 	"MENU SLIDE = ON  - Press X to switch"
-#define slide_off	"MENU SLIDE = OFF - Press X to switch"
-char *theme_text=	"THEME BY DEFAULT - WOODY_GEEK";
-char *slide_text=slide_off;
-
-int sub_text_y=250;
-int sub_text_step=25;
-
-int submenulevel=Theme_Select;
-menu_slide=0;
-select_theme=0;
-
-
-int hig_x=340;
-int hig_w=600;
-int hig_y=250;
-int hig_h=18;
-int hig_step=25;
-uint32_t hig_color=0x800080ff;
-
-
-
-void MenuDraw()
+void MainMenuDraw()
 {
 	if(menu_slide==0)
 	{
-		x1=0;
-	}
-	if(bckgr)
-	{
-		orbis2dDrawTexture(bckgr,0,0);		
+		main_menu_x=0;
 	}
 
-	if(icon1 && icon1big==1)
+	if(iconGames && iconGamesBig==1)
 	{			
-		orbis2dDrawTexture(icon1,x1+292,y1);		
+		orbis2dDrawTexture(iconGames,main_menu_x+292,main_menu_y);		
 	}
-	else if (icon1s && icon1big==0)
+	else if (iconGamesSmall && iconGamesBig==0)
 	{
-		orbis2dDrawTexture(icon1s,x1+302,y1);	
+		orbis2dDrawTexture(iconGamesSmall,main_menu_x+302,main_menu_y);	
 	}
 
 	if(icon2 && icon2big==1)
 	{
-		orbis2dDrawTexture(icon2,x1+432,y1);
+		orbis2dDrawTexture(icon2,main_menu_x+432,main_menu_y);
 	}
-	else if (icon2s && icon2big==0)
+	else if (icon2Small && icon2big==0)
 	{
-		orbis2dDrawTexture(icon2s,x1+442,y1);	
+		orbis2dDrawTexture(icon2Small,main_menu_x+442,main_menu_y);	
 	}
 
 	if(icon3 && icon3big==1)
 	{
-		orbis2dDrawTexture(icon3,x1+572,y1);
+		orbis2dDrawTexture(icon3,main_menu_x+572,main_menu_y);
 	}
-	else if (icon3s && icon3big ==0)
+	else if (icon3Small && icon3big ==0)
 	{
-		orbis2dDrawTexture(icon3s,x1+582,y1);
+		orbis2dDrawTexture(icon3Small,main_menu_x+582,main_menu_y);
 	}
 		
 	if(icon4 && icon4big==1)
 	{
-		orbis2dDrawTexture(icon4,x1+712,y1);
+		orbis2dDrawTexture(icon4,main_menu_x+712,main_menu_y);
 	}
-	else if (icon4s && icon4big ==0)
+	else if (icon4Small && icon4big ==0)
 	{
-		orbis2dDrawTexture(icon4s,x1+722,y1);	
+		orbis2dDrawTexture(icon4Small,main_menu_x+722,main_menu_y);	
 	}
 
-	if(icon5 && icon5big==1)
+	if(iconSettings && iconSettingsBig==1)
 	{
-		orbis2dDrawTexture(icon5,x1+852,y1);
+		orbis2dDrawTexture(iconSettings,main_menu_x+852,main_menu_y);
 	}
-	else if (icon5s && icon5big ==0)
+	else if (iconSettingsSmall && iconSettingsBig ==0)
 	{
-		orbis2dDrawTexture(icon5s,x1+862,y1);	
+		orbis2dDrawTexture(iconSettingsSmall,main_menu_x+862,main_menu_y);	
 	}
 		
 }
 
-void SubMenuDraw()
+void TermTopDraw()
 {
-	if(rect == 1 && slidetab==0)
 	{
-		//for (int iterm=0;iterm<tabh;iterm++) // need to split in 3 images then slide display
-		//{	
-			
-			//debugNetPrintf(DEBUG,"Valeur de iterm %d \n",iterm);
-			termx = get_image_aligned_x(term, CENTER);
-			orbis2dDrawTexture(termbot,termx,termy+iterm);
-			orbis2dDrawTexture(termtop,termx,termy);
-			if (iterm>=34) orbis2dDrawRectColor(termx, tabw, termy+34 , iterm-33, color);
 
-			c1=0x00000000;
+		//DRAW TOP OF WINDOWS
+		orbis2dDrawTexture(termtop,termx,termy);
+
+		//print tittle over the top windows image
+		c1=0xFF000000;
+		c2=0xFF000000;
+		update_gradient(&c1, &c2);
+		sprintf(tmp_ln, tittle);
+		tx = get_aligned_x(tmp_ln, CENTER);
+		print_text(tx, tittle_y, tittle);
+	}
+}
+
+
+
+void TerminalDraw()
+{
+	if(slide_term_status==1)
+	{
+
+
+		//DRAW BOTTOM OF WINDOWS (Will down during the count)
+		orbis2dDrawTexture(termbot,termx,termy+iterm);
+
+		//DRAW TOP OF WINDOWS	
+		if (iterm<=34)
+		{
+			orbis2dDrawTexture(termtop,termx,termy);
+
+			//print tittle over the top windows image
+			c1=0xFF000000;
 			c2=0xFF000000;
 			update_gradient(&c1, &c2);
 			sprintf(tmp_ln, tittle);
 			tx = get_aligned_x(tmp_ln, CENTER);
 			print_text(tx, tittle_y, tittle);
-			//orbis2dFinishDrawing(flipArg);
+		}
 
-				//}
-			//if (iterm==tabh) slidetab=1;
-			if (iterm!=tabh) iterm++;
-	
+		//complet in black between top and bottom
+		if (iterm>=34) orbis2dDrawRectColor(termx, tabw, termy+34 , iterm-33, color);
+
+		
+		// need to count frame buffer then iterm++ (TODO: find a way to use a timer)
+		if (iterm+slidespeed<tabh)
+		{
+			if (flipArg!=temp_flipArg && flipArg!=temp_flipArg+1)
+			{
+				for(int i=0;i<=slidespeed;i++)iterm++;
+				temp_flipArg=flipArg;
+			}
+			else if (flipArg==temp_flipArg+1)
+			{
+				for(int i=0;i<slidespeed;i++)iterm++;
+				temp_flipArg=flipArg;
+			}
+
+		}
+		// need to count frame buffer then iterm-- (TODO: find a way to use a timer)
+		else if (iterm-slidespeed>tabh)
+		{
+			if (flipArg!=temp_flipArg && flipArg!=temp_flipArg+1)
+			{
+				for(int i=0;i<=slidespeed;i++)iterm--;
+				temp_flipArg=flipArg;
+			}
+			else if (flipArg==temp_flipArg+1)
+			{
+				for(int i=0;i<slidespeed;i++)iterm--;
+				temp_flipArg=flipArg;
+			}
+		}
+		else iterm=tabh;
+
 	}
-	else if (rect == 1 && slidetab==1)
+	else if (slide_term_status==0)
 	{
-		termx = get_image_aligned_x(termtop, CENTER);
+		iterm=tabh;
+		//complet in black between top and bottom
+		orbis2dDrawRectColor(termx, tabw, termy+34 , iterm-33, color);
+
+		//DRAW BOTTOM OF WINDOWS (Will down during the count)
+		orbis2dDrawTexture(termbot,termx,termy+iterm);
+
+		//DRAW TOP OF WINDOWS	
 		orbis2dDrawTexture(termtop,termx,termy);
 
+		// print tittle menu
 		c1=0xFF000000;
 		c2=0xFF000000;
 		update_gradient(&c1, &c2);
@@ -205,46 +240,18 @@ void SubMenuDraw()
 		print_text(tx, tittle_y, tittle);
 	}
 
-	if(icon5big==1 && iterm==tabh)
-	{
-		orbis2dDrawRectColor(hig_x, hig_w, hig_y, hig_h, hig_color);
+	// draw submenu when terminal is complet drawed
+	if(iconSettingsBig==1 && iterm==tabh) SubMenuSettingsDraw();
+	if(iconGamesBig==1 && iterm==tabh) SubMenuGamesDraw();
 
-		c1=0xFF4ce600;
-		c2=0xFF4ce600;
-		update_gradient(&c1, &c2);
-
-		sprintf(tmp_ln, theme_text);
-		tx = get_aligned_x(tmp_ln, CENTER);
-		print_text(tx, sub_text_y, theme_text);
-			
-		int ty=sub_text_y + sub_text_step;
-		sprintf(tmp_ln, slide_text);
-		tx = get_aligned_x(tmp_ln, CENTER);
-		print_text(tx, ty, slide_text);
-	}
 }
 
-
-int BackgroundInit()
-{
-	int ret=0;
-	bckgr=orbis2dLoadPngFromHost_v2(BCKGR_FILE_PATH);
-	if(bckgr)
-	{
-	}
-	else
-	{
-		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",BCKGR_FILE_PATH);
-		
-	}
-	return ret;
-}
 
 int TermInit()
 {
 	int ret=0;
 	term=orbis2dLoadPngFromHost_v2(TERM_FILE_PATH);
+	termx = orbis2dGetTextureXAlign(term, CENTER);
 	if(term)
 	{
 	}
@@ -281,36 +288,36 @@ int IconsInit()
 {
 	int ret=0;
 
-	icon1s=orbis2dLoadPngFromHost_v2(ICON1S_FILE_PATH);
-	if(icon1s)
+	iconGamesSmall=orbis2dLoadPngFromHost_v2(iconGamesSmall_FILE_PATH);
+	if(iconGamesSmall)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON1S_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",iconGamesSmall_FILE_PATH);
 		
 	}
 
-	icon1=orbis2dLoadPngFromHost_v2(ICON1_FILE_PATH);
-	if(icon1)
+	iconGames=orbis2dLoadPngFromHost_v2(iconGames_FILE_PATH);
+	if(iconGames)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON1_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",iconGames_FILE_PATH);
 		
 	}
 
-	icon2s=orbis2dLoadPngFromHost_v2(ICON2S_FILE_PATH);
-	if(icon2s)
+	icon2Small=orbis2dLoadPngFromHost_v2(icon2Small_FILE_PATH);
+	if(icon2Small)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON2S_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",icon2Small_FILE_PATH);
 		
 	}
 	icon2=orbis2dLoadPngFromHost_v2(ICON2_FILE_PATH);
@@ -324,14 +331,14 @@ int IconsInit()
 		
 	}
 
-	icon3s=orbis2dLoadPngFromHost_v2(ICON3S_FILE_PATH);
-	if(icon3s)
+	icon3Small=orbis2dLoadPngFromHost_v2(icon3Small_FILE_PATH);
+	if(icon3Small)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON3S_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",icon3Small_FILE_PATH);
 		
 	}
 
@@ -345,14 +352,14 @@ int IconsInit()
 		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON3_FILE_PATH);
 	}
 
-	icon4s=orbis2dLoadPngFromHost_v2(ICON4S_FILE_PATH);
-	if(icon4s)
+	icon4Small=orbis2dLoadPngFromHost_v2(icon4Small_FILE_PATH);
+	if(icon4Small)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON4S_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",icon4Small_FILE_PATH);
 	}
 
 	icon4=orbis2dLoadPngFromHost_v2(ICON4_FILE_PATH);
@@ -365,24 +372,24 @@ int IconsInit()
 		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON4_FILE_PATH);
 	}
 	
-	icon5s=orbis2dLoadPngFromHost_v2(ICON5S_FILE_PATH);
-	if(icon5s)
+	iconSettingsSmall=orbis2dLoadPngFromHost_v2(iconSettingsSmall_FILE_PATH);
+	if(iconSettingsSmall)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON5S_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",iconSettingsSmall_FILE_PATH);
 	}
 
-	icon5=orbis2dLoadPngFromHost_v2(ICON5_FILE_PATH);
-	if(icon5)
+	iconSettings=orbis2dLoadPngFromHost_v2(iconSettings_FILE_PATH);
+	if(iconSettings)
 	{
 	}
 	else
 	{
 		ret=-1;
-		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",ICON5_FILE_PATH);
+		debugNetPrintf(ERROR,"Problem loading png image file from %s \n",iconSettings_FILE_PATH);
 	}
 	return ret;
  
@@ -392,59 +399,51 @@ int IconsInit()
 
 int iconGetLevel()
 {
-	return iconLevel;
+	return mainMenuLevel;
 }
 void iconSetLevel(int levelicon)
 {
 	if(levelicon>=0)
 	{
-		iconLevel=levelicon;
+		mainMenuLevel=levelicon;
 	}	
 }
-void iconLevelLeft()
+void mainMenuLevelLeft()
 {
 	switch(iconGetLevel())
 	{
-		case ICON_1:
+		case Icon_Games:
 			break;
 		case ICON_2:
-			slidetab=1;
-			iconSetLevel(ICON_1);
-			icon1big=1;
+			iconSetLevel(Icon_Games);
+			iconGamesBig=1;
 			icon2big=0;
-			x1=x1+step1;
-			rect=1;
-			tabh=300;
-			tittle=tittle_1;
+			main_menu_x=main_menu_x+main_menu_step_x;
+			tabh=100;
+			tittle=tittle_Games;
 			break;
 		case ICON_3:
-			slidetab=1;
 			iconSetLevel(ICON_2);
 			icon2big=1;
 			icon3big=0;
-			x1=x1+step1;
-			rect=1;
-			tabh=400;
+			main_menu_x=main_menu_x+main_menu_step_x;
+			tabh=0;
 			tittle=tittle_2;
 			break;
 		case ICON_4:
-			slidetab=1;
 			iconSetLevel(ICON_3);
 			icon3big=1;
 			icon4big=0;
-			x1=x1+step1;
-			rect=1;
-			tabh=200;
+			main_menu_x=main_menu_x+main_menu_step_x;
+			tabh=0;
 			tittle=tittle_3;
 			break;
-		case ICON_5:
-			slidetab=1;
+		case Icon_Settings:
 			iconSetLevel(ICON_4);
 			icon4big=1;
-			icon5big=0;
-			x1=x1+step1;
-			rect=1;
-			tabh=300;
+			iconSettingsBig=0;
+			main_menu_x=main_menu_x+main_menu_step_x;
+			tabh=0;
 			tittle=tittle_4;
 			break;
 		default:
@@ -452,121 +451,46 @@ void iconLevelLeft()
 	}
 }
 
-void iconLevelRight()
+void mainMenuLevelRight()
 {
 	switch(iconGetLevel())
 	{
-		case ICON_1:
-			slidetab=1;
+		case Icon_Games:
 			iconSetLevel(ICON_2);
 			icon2big=1;
-			icon1big=0;
-			x1=x1-step1;
-			rect=1;
-			tabh=400;
+			iconGamesBig=0;
+			main_menu_x=main_menu_x-main_menu_step_x;
+			tabh=0;
 			tittle=tittle_2;
 			break;
 		case ICON_2:
-			slidetab=1;
 			iconSetLevel(ICON_3);
 			icon3big=1;
 			icon2big=0;
-			x1=x1-step1;
-			rect=1;
-			tabh=200;
+			main_menu_x=main_menu_x-main_menu_step_x;
+			tabh=0;
 			tittle=tittle_3;
 			break;
 		case ICON_3:
-			slidetab=1;
 			iconSetLevel(ICON_4);
 			icon4big=1;
 			icon3big=0;
-			x1=x1-step1;
-			rect=1;
-			tabh=300;
+			main_menu_x=main_menu_x-main_menu_step_x;
+			tabh=0;
 			tittle=tittle_4;
 			break;
 		case ICON_4:
-			iterm=0;
-			slidetab=0;
-			iconSetLevel(ICON_5);
-			icon5big=1;
+			iconSetLevel(Icon_Settings);
+			SubMenuSettingsetLevel(Theme_Select);
+			iconSettingsBig=1;
 			icon4big=0;
-			x1=x1-step1;
-			rect=1;
-			tabh=80;
-			tittle=tittle_5;
+			main_menu_x=main_menu_x-main_menu_step_x;
+			tabh=250;
+			tittle=tittle_Settings;
 			break;
-		case ICON_5:
-			break;
-		default:
-			break;
-	}
-}
-
-int SubMenuGetLevel()
-{
-	return submenulevel;
-}
-void SubMenuSetLevel(int levelsubmenu)
-{
-	if(levelsubmenu>=0)
-	{
-		submenulevel=levelsubmenu;
-	}	
-}
-
-void SubLevelDown()
-{
-	if(iconGetLevel()==ICON_5)
-	{
-		switch(SubMenuGetLevel())
-		{
-		case Theme_Select:
-			SubMenuSetLevel(Slide_Menu);
-			hig_y=hig_y+hig_step;
-			break;
-		case Slide_Menu:
+		case Icon_Settings:
 			break;
 		default:
 			break;
-		}
 	}
-}
-
-void SubLevelUp()
-{
-	if(iconGetLevel()==ICON_5)
-	{
-		switch(SubMenuGetLevel())
-		{
-		case Theme_Select:
-			break;
-		case Slide_Menu:
-			SubMenuSetLevel(Theme_Select);
-			hig_y=hig_y-hig_step;
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-void SetValue()
-{
-	if(iconGetLevel()==ICON_5 && SubMenuGetLevel()==Slide_Menu)
-	{
-		if(menu_slide==0)
-		{
-		slide_text=slide_on;
-		menu_slide=1;
-		x1=-280;
-		}
-		else
-		{
-		slide_text=slide_off;
-		menu_slide=0;
-		}
-	}
-
 }

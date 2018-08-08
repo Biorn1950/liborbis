@@ -19,25 +19,61 @@
 #include <debugnet.h>
 #include <orbisXbmFont.h>
 #include "menu.h"
+#include "snake.h"
+#include "settings.h"
 
+//main conf
+	static char refresh = 1;
+	int flag=0;
 
-int flag=0;
-
-Orbis2dConfig *conf;
-OrbisPadConfig *confPad;
-
-typedef struct OrbisGlobalConf
-{
 	Orbis2dConfig *conf;
 	OrbisPadConfig *confPad;
-	OrbisAudioConfig *confAudio;
-	OrbisKeyboardConfig *confKeyboard;
-	ps4LinkConfiguration *confLink;
-	int orbisLinkFlag;
-}
 
-OrbisGlobalConf;
-OrbisGlobalConf *myConf;
+	typedef struct OrbisGlobalConf
+	{
+		Orbis2dConfig *conf;
+		OrbisPadConfig *confPad;
+		OrbisAudioConfig *confAudio;
+		OrbisKeyboardConfig *confKeyboard;
+		ps4LinkConfiguration *confLink;
+		int orbisLinkFlag;
+	}
+
+	OrbisGlobalConf;
+	OrbisGlobalConf *myConf;
+
+
+// General background
+	#define BCKGR_FILE_PATH "host0:img/background.png"
+	extern Orbis2dTexture *bckgr;
+	Orbis2dTexture *bckgr=NULL;
+
+	int BackgroundInit()
+	{
+		int ret=0;
+		bckgr=orbis2dLoadPngFromHost_v2(BCKGR_FILE_PATH);
+		if(bckgr)
+		{
+		}
+		else
+		{
+			ret=-1;
+			debugNetPrintf(ERROR,"Problem loading png image file from %s \n",BCKGR_FILE_PATH);
+		
+		}
+		return ret;
+	}
+
+	void BackGoundDraw()
+	{
+		if(bckgr)
+		{
+			orbis2dDrawTexture(bckgr,0,0);		
+		}
+	}
+
+
+
 
 void updateController()
 {
@@ -46,45 +82,104 @@ void updateController()
 	ret=orbisPadUpdate();
 	if(ret==0)
 	{
-		
-		if(orbisPadGetButtonPressed(ORBISPAD_SQUARE))
-		{
-			debugNetPrintf(DEBUG,"Square pressed\n");
-
-		}
+		//main
 		if(orbisPadGetButtonPressed(ORBISPAD_TRIANGLE))
 		{
-			debugNetPrintf(DEBUG,"Triangle pressed exit\n");
 			flag=0;
 		}
-		if(orbisPadGetButtonPressed(ORBISPAD_CROSS))
-		{
-			debugNetPrintf(DEBUG,"Cross pressed\n");
-			SetValue();
-		}
-		if(orbisPadGetButtonPressed(ORBISPAD_L1))
-		{
-			//debugNetPrintf(DEBUG,"L1 pressed\n");
-			//slidetab=0;
-			iconLevelLeft();
-		}
-		if(orbisPadGetButtonPressed(ORBISPAD_R1))
-		{
-			//debugNetPrintf(DEBUG,"R1 pressed\n");
-			//slidetab=0;
-			iconLevelRight();
 
-		}
-		if(orbisPadGetButtonPressed(ORBISPAD_UP))
+		//menu
+		if (menu==1)
 		{
-			debugNetPrintf(DEBUG,"Up pressed\n");
-			SubLevelUp();
+			if(orbisPadGetButtonPressed(ORBISPAD_L1))
+			{
+				if (slide_term_switch==0) iterm=0;
+				setsub();
+				mainMenuLevelLeft();
+				refresh = 1;
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_R1))
+			{
+				if (slide_term_switch==0) iterm=0;
+				setsub();
+				mainMenuLevelRight();
+				refresh = 1;
+			}
 		}
-		if(orbisPadGetButtonPressed(ORBISPAD_DOWN))
+
+		//games sub menu
+		if(iconGetLevel()==Icon_Games && terminal==1)
 		{
-			debugNetPrintf(DEBUG,"Down pressed\n");
-			SubLevelDown();
-		}				
+			if(orbisPadGetButtonPressed(ORBISPAD_CROSS))
+			{
+				SetGamesValue();
+				refresh = 1;
+			}
+		}
+
+		//settings sub menu
+		if(iconGetLevel()==Icon_Settings && terminal==1)
+		{
+			if(orbisPadGetButtonPressed(ORBISPAD_UP))
+			{
+				debugNetPrintf(DEBUG,"Up pressed\n");
+				SubMenuSettingsLevelUp();
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_DOWN))
+			{
+				debugNetPrintf(DEBUG,"Down pressed\n");
+				SubMenuSettingsLevelDown();
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_RIGHT))
+			{
+				debugNetPrintf(DEBUG,"Right pressed\n");
+				if(SubMenuSettingsGetLevel()==Slide_Term_Speed) slidespeed++;
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_LEFT))
+			{
+				debugNetPrintf(DEBUG,"Left pressed\n");
+				if (SubMenuSettingsGetLevel()==Slide_Term_Speed && slidespeed>1) slidespeed--;
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_CROSS))
+			{
+				debugNetPrintf(DEBUG,"Cross pressed\n");
+				SetSettingsValue();
+				refresh=1;
+			}
+		}
+
+		//snake
+		if (snake==1)
+		{
+			if(orbisPadGetButtonPressed(ORBISPAD_UP) && speedys != 1)
+			{
+				debugNetPrintf(DEBUG,"Snake Up pressed\n");
+				updateSnakeDir(0,-1);
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_DOWN) && speedys!=-1)
+			{
+				debugNetPrintf(DEBUG,"Down pressed\n");
+				updateSnakeDir(0,1);
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_RIGHT) && speedxs!=-1)
+			{
+				debugNetPrintf(DEBUG,"Right pressed\n");
+				updateSnakeDir(1,0);
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_LEFT) && speedxs!=1)
+			{
+				debugNetPrintf(DEBUG,"Left pressed\n");
+				updateSnakeDir(-1,0);
+			}
+			if(orbisPadGetButtonPressed(ORBISPAD_CIRCLE))
+			{
+				debugNetPrintf(DEBUG,"Circle pressed come back to MSX\n");
+				snake=0;
+				menu=1;
+				terminal=1;
+				refresh=1;
+			}
+		}	
 	}
 }
 
@@ -153,15 +248,34 @@ int main(int argc, char *argv[])
 		//wait for current display buffer
 		orbis2dStartDrawing();
 
-		// clear with background (default white) to the current display buffer 
-		orbis2dClearBuffer(1);
-				
-		//draw menu
-		MenuDraw();
+		// clear the current display buffer
+		orbis2dClearBuffer(0);
 
-		//draw sub_menu
-		SubMenuDraw();
-				
+		if(refresh)	// draw the background image
+		{
+			orbis2dClearBuffer(1);  // don't use dumpBuf, force clean
+
+			// first, an image
+			BackGoundDraw();
+			//draw menu
+			if(menu==1)
+			{
+				MainMenuDraw();
+				TermTopDraw();
+			}
+			orbis2dDumpBuffer(), refresh = 0;  // save dumpBuf
+			debugNetPrintf(DEBUG,"orbis2dDumpBuffer()\n");
+		}
+
+		//draw sub_menu_games
+		//if(terminal==1 && iconGetLevel()==Icon_Games)SubMenuGamesDraw();
+
+		//draw sub_menu_settings
+		//if(terminal==1 && iconGetLevel()==Icon_Settings)SubMenuSettingsDraw();
+		if (terminal==1) TerminalDraw();
+		//draw snake
+		if (snake==1) drawSnake();
+
 		//flush and flip
 		orbis2dFinishDrawing(flipArg);
 				
